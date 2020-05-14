@@ -87,10 +87,10 @@ func (pvtb *ProtocolVersionTableBuilder) Build() (*ProtocolVersionTable, error) 
 
 	// enforce that the current network has an entry at block height zero
 	if len(versions) == 0 {
-		return nil, errors.Errorf("no protocol versions specified for network %s", pvtb.network)
+		return nil, errors.Errorf("no protocol versions specified for network \"%s\"", pvtb.network)
 	}
 	if versions[0].EffectiveAt != abi.ChainEpoch(0) {
-		return nil, errors.Errorf("no protocol version at genesis for network %s", pvtb.network)
+		return nil, errors.Errorf("no protocol version at genesis for network \"%s\"", pvtb.network)
 	}
 
 	// enforce that version numbers increase monotonically with effective at

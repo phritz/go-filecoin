@@ -16,7 +16,7 @@ import (
 	files "github.com/ipfs/go-ipfs-files"
 	multihash "github.com/multiformats/go-multihash"
 
-	"github.com/filecoin-project/go-filecoin/fixtures"
+	"github.com/filecoin-project/go-filecoin/fixtures/fortest"
 	"github.com/filecoin-project/go-filecoin/internal/pkg/constants"
 	th "github.com/filecoin-project/go-filecoin/internal/pkg/testhelpers"
 	tf "github.com/filecoin-project/go-filecoin/internal/pkg/testhelpers/testflags"
@@ -33,15 +33,15 @@ func TestDealsList(t *testing.T) {
 	tf.IntegrationTest(t)
 
 	clientDaemon := th.NewDaemon(t,
-		th.KeyFile(fixtures.KeyFilePaths()[1]),
-		th.DefaultAddress(fixtures.TestAddresses[1]),
+		th.KeyFile(fortest.KeyFilePaths()[1]),
+		th.DefaultAddress(fortest.TestAddresses[1]),
 	).Start()
 	defer clientDaemon.ShutdownSuccess()
 
 	minerDaemon := th.NewDaemon(t,
-		th.WithMiner(fixtures.TestMiners[0]),
-		th.KeyFile(fixtures.KeyFilePaths()[0]),
-		th.DefaultAddress(fixtures.TestAddresses[0]),
+		th.WithMiner(fortest.TestMiners[0]),
+		th.KeyFile(fortest.KeyFilePaths()[0]),
+		th.DefaultAddress(fortest.TestAddresses[0]),
 		th.AutoSealInterval("1"),
 	).Start()
 	defer minerDaemon.ShutdownSuccess()
@@ -52,18 +52,18 @@ func TestDealsList(t *testing.T) {
 	minerDaemon.ConnectSuccess(clientDaemon)
 
 	// Create a deal from the client daemon to the miner daemon
-	addAskCid := minerDaemon.MinerSetPrice(fixtures.TestMiners[0], fixtures.TestAddresses[0], "20", "10")
+	addAskCid := minerDaemon.MinerSetPrice(fortest.TestMiners[0], fortest.TestAddresses[0], "20", "10")
 	clientDaemon.WaitForMessageRequireSuccess(addAskCid)
 	dataCid := clientDaemon.RunWithStdin(strings.NewReader("HODLHODLHODL"), "client", "import").ReadStdoutTrimNewlines()
-	proposeDealOutput := clientDaemon.RunSuccess("client", "propose-storage-deal", fixtures.TestMiners[0].String(), dataCid, "0", "5").ReadStdoutTrimNewlines()
+	proposeDealOutput := clientDaemon.RunSuccess("client", "propose-storage-deal", fortest.TestMiners[0].String(), dataCid, "0", "5").ReadStdoutTrimNewlines()
 	splitOnSpace := strings.Split(proposeDealOutput, " ")
 	dealCid1 := splitOnSpace[len(splitOnSpace)-1]
 
 	// create another deal with zero price
 	dataCid = clientDaemon.RunWithStdin(strings.NewReader("FREEASINBEER"), "client", "import").ReadStdoutTrimNewlines()
-	addAskCid = minerDaemon.MinerSetPrice(fixtures.TestMiners[0], fixtures.TestAddresses[0], "0", "10")
+	addAskCid = minerDaemon.MinerSetPrice(fortest.TestMiners[0], fortest.TestAddresses[0], "0", "10")
 	clientDaemon.WaitForMessageRequireSuccess(addAskCid)
-	proposeDealOutput = clientDaemon.RunSuccess("client", "propose-storage-deal", fixtures.TestMiners[0].String(), dataCid, "1", "5").ReadStdoutTrimNewlines()
+	proposeDealOutput = clientDaemon.RunSuccess("client", "propose-storage-deal", fortest.TestMiners[0].String(), dataCid, "1", "5").ReadStdoutTrimNewlines()
 	splitOnSpace = strings.Split(proposeDealOutput, " ")
 	dealCid2 := splitOnSpace[len(splitOnSpace)-1]
 
